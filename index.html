@@ -151,8 +151,8 @@
     <script>
         // ===========================================
         // DÁN URL MỚI SAU KHI DEPLOY VÀO ĐÂY:
-        const API_URL = "https://script.google.com/macros/s/AKfycbw9YMIk5W6kdFJl4FGsVIqUk8viRCDb0hwY7W8Vpuf4iatjOBx49c_H9_cj-pU_98nolw/exec"; 
-        const LOGO_URL = "https://raw.githubusercontent.com/lehoangngocduc/Hoc-Toan-An-Phuc/main/logo.png"; // Ví dụ
+        const API_URL = "https://script.google.com/macros/s/AKfycbxT6S52eLkO986FQDj9JOw6VKVvlhn826fUMHwcwreJBX0YIjyU9ZN6owLPq02cv4lhgA/exec"; 
+        const LOGO_URL = "https://raw.githubusercontent.com/lehoangngocduc/Hoc-Toan-An-Phuc/main/logo.png"; 
         // ===========================================
 
         const GRADE_CONFIG = [{id:"6",name:"Lớp 6"},{id:"7",name:"Lớp 7"},{id:"8",name:"Lớp 8"},{id:"9",name:"Lớp 9"},{id:"ts10",name:"TS10"},{id:"10",name:"Lớp 10"},{id:"11",name:"Lớp 11"},{id:"12",name:"Lớp 12"},{id:"thptqg",name:"THPTQG"}];
@@ -166,19 +166,11 @@
             initFilters(); fetchData(); 
         };
 
-        // CORE API: Sử dụng no-cors mode trick hoặc plain text để ổn định
         async function callAPI(payload) {
             try {
-                const res = await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
                 return await res.json();
-            } catch (error) {
-                console.error("API Error:", error);
-                // Fallback nếu JSON parse lỗi
-                return { status: "error", message: "Lỗi kết nối Server! Vui lòng thử lại." };
-            }
+            } catch (error) { console.error("API Error:", error); return { status: "error", message: "Lỗi kết nối Server! Vui lòng thử lại." }; }
         }
         
         async function fetchData() {
@@ -191,76 +183,30 @@
             } catch (e) { console.error(e); }
         }
 
-        // Dropdown Logic
-        function initLogDropdowns(){
-            if(!appData.users) return;
-            let gs=Object.keys(appData.users).sort((a,b)=>a-b);
-            let h='<option value="">-- Chọn Khối --</option>';
-            gs.forEach(g=>h+=`<option value="${g}">Khối ${g}</option>`);
-            document.getElementById('logGrade').innerHTML=h;
-        }
-        function loadLogClasses(){
-            let g=document.getElementById('logGrade').value;
-            let h='<option value="">-- Chọn Lớp --</option>';
-            if(g&&appData.users[g]) Object.keys(appData.users[g]).sort().forEach(c=>h+=`<option value="${c}">${c}</option>`);
-            document.getElementById('logClass').innerHTML=h;
-            document.getElementById('logName').innerHTML='<option value="">-- Chọn Tên --</option>';
-        }
-        function loadLogNames(){
-            let g=document.getElementById('logGrade').value, c=document.getElementById('logClass').value;
-            let h='<option value="">-- Chọn Tên --</option>';
-            if(g&&c&&appData.users[g][c]) appData.users[g][c].forEach(n=>h+=`<option value="${n}">${n}</option>`);
-            document.getElementById('logName').innerHTML=h;
-        }
-
-        // Upload Functions
-        function toggleUploadMode() {
-            let isFile = document.getElementById('modeFile').checked;
-            document.getElementById('areaFile').style.display = isFile ? 'block' : 'none';
-            document.getElementById('areaLink').style.display = isFile ? 'none' : 'block';
-        }
-
-        function doUploadFile() {
-            let f = document.getElementById('fileInput').files[0];
-            if(!f) return alert("Chưa chọn file");
-            toggleLoader(true);
-            let r = new FileReader(); r.readAsDataURL(f);
-            r.onload = async function() {
-                const res = await callAPI({
-                    action: "upload", fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1],
-                    grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value
-                });
-                toggleLoader(false);
-                if(res.status === "success") { alert("Upload thành công!"); fetchData(); } else alert("Lỗi: " + res.message);
-            };
-        }
-
-        async function doSaveLink() {
-            let n = document.getElementById('linkName').value, u = document.getElementById('linkUrl').value;
-            if(!n || !u) return alert("Nhập đủ thông tin!");
-            toggleLoader(true);
-            const res = await callAPI({
-                action: "saveFileLink", fileName: n, url: u,
-                grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value
-            });
-            toggleLoader(false);
-            if(res.status === "success") { alert("Lưu link thành công!"); fetchData(); } else alert("Lỗi: " + res.message);
-        }
-
+        // --- IMPORT CSV FIX ENCODING ---
         function handleBulkImport() {
             const f = document.getElementById('csvFileInput').files[0];
             if(!f) return alert("Chưa chọn file CSV!");
+            
+            // THỬ ĐỌC VỚI MÃ TIẾNG VIỆT/WINDOWS
             let r = new FileReader();
             r.onload = async function(e) {
                 toggleLoader(true);
                 const res = await callAPI({ action: "importUsersBulk", csvContent: e.target.result });
                 toggleLoader(false);
-                if(res.status === "success") { alert("Đã thêm " + res.count + " HS!"); fetchData(); } else alert(res.message);
+                if(res.status === "success") { alert("Đã thêm " + res.count + " HS!"); fetchData(); } else alert("Lỗi: " + res.message);
             };
-            r.readAsText(f);
+            // Quan trọng: Đọc dưới dạng utf-8 để tương thích
+            r.readAsText(f, "UTF-8"); 
         }
 
-        // Standard Functions
+        // CÁC HÀM LOGIC CÒN LẠI (GIỮ NGUYÊN)
+        function initLogDropdowns(){if(!appData.users)return;let gs=Object.keys(appData.users).sort((a,b)=>a-b);let h='<option value="">-- Chọn Khối --</option>';gs.forEach(g=>h+=`<option value="${g}">Khối ${g}</option>`);document.getElementById('logGrade').innerHTML=h;}
+        function loadLogClasses(){let g=document.getElementById('logGrade').value;let h='<option value="">-- Chọn Lớp --</option>';if(g&&appData.users[g])Object.keys(appData.users[g]).sort().forEach(c=>h+=`<option value="${c}">${c}</option>`);document.getElementById('logClass').innerHTML=h;document.getElementById('logName').innerHTML='<option value="">-- Chọn Tên --</option>';}
+        function loadLogNames(){let g=document.getElementById('logGrade').value,c=document.getElementById('logClass').value;let h='<option value="">-- Chọn Tên --</option>';if(g&&c&&appData.users[g][c])appData.users[g][c].forEach(n=>h+=`<option value="${n}">${n}</option>`);document.getElementById('logName').innerHTML=h;}
+        function toggleUploadMode() { let isFile = document.getElementById('modeFile').checked; document.getElementById('areaFile').style.display = isFile ? 'block' : 'none'; document.getElementById('areaLink').style.display = isFile ? 'none' : 'block'; }
+        function doUploadFile() { let f = document.getElementById('fileInput').files[0]; if(!f) return alert("Chưa chọn file"); toggleLoader(true); let r = new FileReader(); r.readAsDataURL(f); r.onload = async function() { const res = await callAPI({ action: "upload", fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1], grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value }); toggleLoader(false); if(res.status === "success") { alert("Upload thành công!"); fetchData(); } else alert("Lỗi: " + res.message); }; }
+        async function doSaveLink() { let n = document.getElementById('linkName').value, u = document.getElementById('linkUrl').value; if(!n || !u) return alert("Nhập đủ thông tin!"); toggleLoader(true); const res = await callAPI({ action: "saveFileLink", fileName: n, url: u, grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value }); toggleLoader(false); if(res.status === "success") { alert("Lưu link thành công!"); fetchData(); } else alert("Lỗi: " + res.message); }
         async function doLogin(){let u=document.getElementById('adminUser').value,p=document.getElementById('adminPass').value;if(u||p){toggleLoader(true);const r=await callAPI({action:"login",username:u,pass:p});toggleLoader(false);if(r.status=="success"&&r.role=="admin"){currentUser=r;onLoginSuccess();}else alert("Sai Admin!");}else{let n=document.getElementById('logName').value,lp=document.getElementById('logPass').value;if(!n||!lp)return alert("Thiếu thông tin");toggleLoader(true);const r=await callAPI({action:"login",username:n,pass:lp});toggleLoader(false);if(r.status=="success"){currentUser=r;onLoginSuccess();}else alert(r.message);}}
         function switchMainTab(m){currentMode=m;currentFilter={grade:'all',category:'all'};document.querySelectorAll('.navbar-custom .nav-link').forEach(l=>l.classList.remove('active-tab'));document.getElementById('tab-'+m).classList.add('active-tab');initFilters();applyFilter();}
         function initFilters(){const c=document.getElementById('gradeFilters');let h=`<button class="grade-btn active" onclick="filterGrade('all',this)">Tất cả</button>`;GRADE_CONFIG.forEach(g=>{let e="";if(currentUser&&currentUser.grade=="9"&&g.id=="ts10")e="special-access";if(currentUser&&currentUser.grade=="12"&&g.id=="thptqg")e="special-access";h+=`<button class="grade-btn ${e}" onclick="filterGrade('${g.id}',this)">${g.name}</button>`});c.innerHTML=h;}
