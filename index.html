@@ -12,6 +12,9 @@
         .navbar-custom { background: #222; padding: 0; }
         .navbar-custom .nav-link { color: #aaa !important; padding: 15px 20px; font-weight: 500; text-transform: uppercase; font-size: 0.9rem; cursor: pointer; }
         .navbar-custom .nav-link.active-tab { color: #fff !important; background: var(--accent); }
+        /* Logo style */
+        .navbar-brand img { height: 40px; margin-right: 10px; border-radius: 5px; } 
+
         .grade-btn { border: 1px solid #ddd; background: white; color: #555; border-radius: 20px; padding: 8px 20px; margin-right: 8px; font-weight: 500; white-space: nowrap; margin-bottom: 10px; }
         .grade-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .grade-btn.special-access { border-color: #ffc107; background-color: #fff3cd; color: #856404; }
@@ -29,7 +32,11 @@
 
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand text-white" href="#"><i class="bi bi-mortarboard-fill"></i> AN PHÚC EDU</a>
+            <a class="navbar-brand text-white d-flex align-items-center" href="#">
+                <img id="appLogo" src="" alt="Logo" onerror="this.style.display='none'"> 
+                <span id="appName">AN PHÚC EDU</span>
+            </a>
+            
             <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -57,19 +64,43 @@
         <div id="adminArea">
             <h5 class="text-danger fw-bold"><i class="bi bi-shield-lock-fill"></i> QUẢN TRỊ VIÊN</h5>
             <ul class="nav nav-pills mb-3">
-                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-file">Upload PDF</button></li>
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-file">Upload Tài Liệu</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-video">Đăng Video</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-approve" onclick="loadPendingUsers()">Duyệt thành viên <span class="badge bg-danger" id="badgePending"></span></button></li>
             </ul>
             <div class="tab-content">
+                
                 <div class="tab-pane fade show active" id="pills-file">
-                    <div class="row g-2">
-                        <div class="col-md-3"><select id="upGrade" class="form-select"></select></div>
-                        <div class="col-md-3"><select id="upCat" class="form-select"></select></div>
-                        <div class="col-md-4"><input type="file" id="fileInput" class="form-control" accept=".pdf,.doc"></div>
-                        <div class="col-md-2"><button class="btn btn-danger w-100" onclick="doUploadFile()">Upload</button></div>
+                    <div class="card p-3 bg-light border-0">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6"><label class="fw-bold small">1. Chọn Khối Lớp:</label><select id="upGrade" class="form-select"></select></div>
+                            <div class="col-md-6"><label class="fw-bold small">2. Chọn Học kỳ/Mục:</label><select id="upCat" class="form-select"></select></div>
+                        </div>
+
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="uploadMode" id="modeFile" checked onchange="toggleUploadMode()">
+                                <label class="form-check-label" for="modeFile">Upload File từ máy (PDF/Word)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="uploadMode" id="modeLink" onchange="toggleUploadMode()">
+                                <label class="form-check-label" for="modeLink">Nhập Link Drive (Cho file nặng)</label>
+                            </div>
+                        </div>
+
+                        <div id="areaFile">
+                            <input type="file" id="fileInput" class="form-control mb-2" accept=".pdf,.doc,.docx">
+                            <button class="btn btn-danger" onclick="doUploadFile()">Upload File</button>
+                        </div>
+
+                        <div id="areaLink" style="display:none;">
+                            <input type="text" id="linkName" class="form-control mb-2" placeholder="Nhập tên tài liệu (Ví dụ: Đề cương Toán 9 HK2)">
+                            <input type="text" id="linkUrl" class="form-control mb-2" placeholder="Dán link Google Drive hoặc Web vào đây">
+                            <button class="btn btn-primary" onclick="doSaveLink()">Lưu Link</button>
+                        </div>
                     </div>
                 </div>
+
                 <div class="tab-pane fade" id="pills-video">
                     <div class="row g-2">
                         <div class="col-md-3"><select id="vidGrade" class="form-select"></select></div>
@@ -79,6 +110,7 @@
                         <div class="col-md-12 mt-2 text-end"><button class="btn btn-danger" onclick="doSaveVideo()">Đăng Video</button></div>
                     </div>
                 </div>
+
                 <div class="tab-pane fade" id="pills-approve">
                     <div class="card p-3 mb-3 bg-light border-primary">
                         <h6 class="text-primary fw-bold"><i class="bi bi-file-earmark-spreadsheet"></i> Thêm nhanh học sinh từ Excel</h6>
@@ -115,7 +147,6 @@
                     <ul class="nav nav-tabs mb-3"><li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-login">Đăng nhập</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-register">Đăng ký</button></li></ul>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-login">
-                            <div class="alert alert-info small">Chọn thông tin để đăng nhập.</div>
                             <select id="logGrade" class="form-select mb-2" onchange="loadLogClasses()"><option>-- Khối --</option></select>
                             <select id="logClass" class="form-select mb-2" onchange="loadLogNames()"><option>-- Lớp --</option></select>
                             <select id="logName" class="form-select mb-2"><option>-- Tên --</option></select>
@@ -135,14 +166,17 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="changePassModal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Đổi mật khẩu</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="password" id="oldP" class="form-control mb-2" placeholder="Mật khẩu cũ"><input type="password" id="newP" class="form-control" placeholder="Mật khẩu mới"></div><div class="modal-footer"><button class="btn btn-primary w-100" onclick="doChangePass()">Lưu</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ===========================================
-        // DÁN URL CỦA BẠN VÀO ĐÂY (SAU KHI DEPLOY NEW VERSION)
-        const API_URL = "https://script.google.com/macros/s/AKfycbw8EOdrWAJzAB3C89u2MiPji4B1b1cVw5HOHWbhxJZ59c2Ya6G-YMXKdQe_iB5rWT30Fg/exec"; 
+        // 1. CẤU HÌNH API
+        const API_URL = "https://script.google.com/macros/s/AKfycbxNjKM6rSuV6NkBQ1iFK4pCbWdNM13SWcOx4lN49pHPmudhfxBl5yRQ3Tt4SdI7VPt9sw/exec"; 
+        
+        // 2. CẤU HÌNH LOGO (Dán link GitHub raw vào đây)
+        // Ví dụ: "https://raw.githubusercontent.com/lehoangngocduc/Hoc-Toan-An-Phuc/main/logo.png"
+        const LOGO_URL = "DÁN_LINK_LOGO_GITHUB_VÀO_ĐÂY"; 
         // ===========================================
 
         const GRADE_CONFIG = [{id:"6",name:"Lớp 6"},{id:"7",name:"Lớp 7"},{id:"8",name:"Lớp 8"},{id:"9",name:"Lớp 9"},{id:"ts10",name:"TS10"},{id:"10",name:"Lớp 10"},{id:"11",name:"Lớp 11"},{id:"12",name:"Lớp 12"},{id:"thptqg",name:"THPTQG"}];
@@ -150,112 +184,81 @@
         let appData = {files:[],videos:[],classes:{},users:{}}, currentMode = 'hoclieu', currentFilter = {grade:'all',category:'all'}, currentUser = null;
         const modalLogin = new bootstrap.Modal(document.getElementById('loginModal')), modalChangePass = new bootstrap.Modal(document.getElementById('changePassModal'));
 
-        window.onload = function(){ if(!API_URL.includes("script.google.com")){alert("Chưa dán Link API!");return;} initFilters(); fetchData(); };
+        window.onload = function(){ 
+            if(LOGO_URL && LOGO_URL.startsWith("http")) { document.getElementById('appLogo').src = LOGO_URL; }
+            initFilters(); fetchData(); 
+        };
 
-        // --- CORE API FUNCTION (QUAN TRỌNG: FIX LỖI KẾT NỐI) ---
         async function callAPI(payload) {
-            // Sử dụng text/plain để tránh Preflight CORS check của Google
-            const res = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            });
+            const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
             return await res.json();
         }
         
-        // Load dữ liệu ban đầu
         async function fetchData() {
             try {
                 const res = await fetch(API_URL);
-                const data = await res.json();
-                appData = data;
-                applyFilter();
-                initLogDropdowns(); initRegDropdowns(); initAdminDropdowns();
-            } catch (e) { console.error(e); alert("Lỗi tải dữ liệu. Kiểm tra lại Link API."); }
+                appData = await res.json();
+                applyFilter(); initLogDropdowns(); initRegDropdowns(); initAdminDropdowns();
+            } catch (e) { console.error(e); }
         }
 
-        // --- UPLOAD FILE ---
+        // --- UPLOAD LOGIC ---
+        function toggleUploadMode() {
+            let isFile = document.getElementById('modeFile').checked;
+            document.getElementById('areaFile').style.display = isFile ? 'block' : 'none';
+            document.getElementById('areaLink').style.display = isFile ? 'none' : 'block';
+        }
+
+        // 1. Upload File (Nhẹ)
         function doUploadFile() {
             let f = document.getElementById('fileInput').files[0];
             if(!f) return alert("Chưa chọn file");
-            if(f.size > 10 * 1024 * 1024) return alert("File quá lớn! Hãy chọn file < 10MB");
-            
             toggleLoader(true);
             let r = new FileReader();
             r.readAsDataURL(f);
             r.onload = async function() {
                 try {
                     const res = await callAPI({
-                        action: "upload",
-                        fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1],
-                        grade: document.getElementById('upGrade').value,
-                        category: document.getElementById('upCat').value
+                        action: "upload", fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1],
+                        grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value
                     });
                     toggleLoader(false);
-                    if(res.status === "success") { alert("Upload thành công!"); fetchData(); }
-                    else alert("Lỗi: " + res.message);
-                } catch(e) { toggleLoader(false); alert("Lỗi mạng khi upload!"); }
+                    if(res.status === "success") { alert("Upload thành công!"); fetchData(); } else alert(res.message);
+                } catch(e) { toggleLoader(false); alert("Lỗi mạng!"); }
             };
         }
 
-        // --- UPLOAD CSV LIST ---
-        function handleBulkImport() {
-            const f = document.getElementById('csvFileInput').files[0];
-            if(!f) return alert("Chưa chọn file CSV!");
-            
-            let r = new FileReader();
-            r.onload = async function(e) {
-                toggleLoader(true);
-                const res = await callAPI({ action: "importUsersBulk", csvContent: e.target.result });
-                toggleLoader(false);
-                if(res.status === "success") {
-                    alert("Đã thêm " + res.count + " học sinh!");
-                    document.getElementById('csvFileInput').value = '';
-                    fetchData();
-                } else alert("Lỗi: " + res.message);
-            };
-            r.readAsText(f);
-        }
-
-        // --- REGISTER ---
-        async function doRegister() {
-            let g = document.getElementById('regGrade').value, c = document.getElementById('regClass').value, n = document.getElementById('regName').value, p = document.getElementById('regPass').value;
-            if(!g || !c || !n || !p) return alert("Thiếu thông tin");
+        // 2. Upload Link (Nặng)
+        async function doSaveLink() {
+            let n = document.getElementById('linkName').value, u = document.getElementById('linkUrl').value;
+            if(!n || !u) return alert("Nhập tên và link!");
             toggleLoader(true);
-            const res = await callAPI({ action: "register", grade: g, className: c, name: n, pass: p });
-            toggleLoader(false);
-            if(res.status === "success") { alert("Đăng ký thành công! Vui lòng chờ thầy duyệt."); modalLogin.hide(); }
-            else alert(res.message);
-        }
-
-        // --- LOGIN ---
-        async function doLogin() {
-            let u = document.getElementById('adminUser').value, p = document.getElementById('adminPass').value;
-            if(u || p) {
-                // Admin Login
-                toggleLoader(true);
-                const res = await callAPI({ action: "login", username: u, pass: p });
+            try {
+                const res = await callAPI({
+                    action: "saveFileLink", fileName: n, url: u,
+                    grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value
+                });
                 toggleLoader(false);
-                if(res.status === "success" && res.role === "admin") { currentUser = res; onLoginSuccess(); }
-                else alert("Sai thông tin Admin");
-            } else {
-                // HS Login
-                let n = document.getElementById('logName').value, lp = document.getElementById('logPass').value;
-                if(!n || !lp) return alert("Vui lòng chọn tên và nhập pass");
-                toggleLoader(true);
-                const res = await callAPI({ action: "login", username: n, pass: lp });
-                toggleLoader(false);
-                if(res.status === "success") { currentUser = res; onLoginSuccess(); }
+                if(res.status === "success") { alert("Lưu link thành công!"); document.getElementById('linkName').value=''; document.getElementById('linkUrl').value=''; fetchData(); } 
                 else alert(res.message);
-            }
+            } catch(e) { toggleLoader(false); alert("Lỗi mạng!"); }
         }
 
-        // --- OTHER HELPERS ---
+        // --- CÁC HÀM CŨ GIỮ NGUYÊN (Upload Video, Login, Render...) ---
+        function handleBulkImport() {
+            const f = document.getElementById('csvFileInput').files[0]; if(!f) return alert("Chưa chọn file CSV!");
+            let r = new FileReader(); r.onload = async function(e) {
+                toggleLoader(true); const res = await callAPI({ action: "importUsersBulk", csvContent: e.target.result }); toggleLoader(false);
+                if(res.status === "success") { alert("Đã thêm " + res.count + " HS!"); document.getElementById('csvFileInput').value = ''; fetchData(); } else alert(res.message);
+            }; r.readAsText(f);
+        }
+        async function doRegister(){let g=document.getElementById('regGrade').value,c=document.getElementById('regClass').value,n=document.getElementById('regName').value,p=document.getElementById('regPass').value;if(!g||!c||!n||!p)return alert("Thiếu thông tin");toggleLoader(true);const r=await callAPI({action:"register",grade:g,className:c,name:n,pass:p});toggleLoader(false);if(r.status=="success"){alert("Đăng ký thành công! Chờ duyệt.");modalLogin.hide();}else alert(r.message);}
+        async function doLogin(){let u=document.getElementById('adminUser').value,p=document.getElementById('adminPass').value;if(u||p){toggleLoader(true);const r=await callAPI({action:"login",username:u,pass:p});toggleLoader(false);if(r.status=="success"&&r.role=="admin"){currentUser=r;onLoginSuccess();}else alert("Sai Admin!");}else{let n=document.getElementById('logName').value,lp=document.getElementById('logPass').value;if(!n||!lp)return alert("Thiếu thông tin");toggleLoader(true);const r=await callAPI({action:"login",username:n,pass:lp});toggleLoader(false);if(r.status=="success"){currentUser=r;onLoginSuccess();}else alert(r.message);}}
         function switchMainTab(m){currentMode=m;currentFilter={grade:'all',category:'all'};document.querySelectorAll('.navbar-custom .nav-link').forEach(l=>l.classList.remove('active-tab'));document.getElementById('tab-'+m).classList.add('active-tab');initFilters();applyFilter();}
         function initFilters(){const c=document.getElementById('gradeFilters');let h=`<button class="grade-btn active" onclick="filterGrade('all',this)">Tất cả</button>`;GRADE_CONFIG.forEach(g=>{let e="";if(currentUser&&currentUser.grade=="9"&&g.id=="ts10")e="special-access";if(currentUser&&currentUser.grade=="12"&&g.id=="thptqg")e="special-access";h+=`<button class="grade-btn ${e}" onclick="filterGrade('${g.id}',this)">${g.name}</button>`});c.innerHTML=h;}
         function filterGrade(g,b){document.querySelectorAll('.grade-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter.grade=g;currentFilter.category='all';const s=document.getElementById('subFilters');if(g==='all')s.style.display='none';else{s.style.display='flex';let k=(g=='ts10'||g=='thptqg')?SUB_CATS[currentMode].special:SUB_CATS[currentMode].default;let h=`<button class="sub-btn active" onclick="filterSub('all',this)">Tất cả</button>`;k.forEach(x=>{h+=`<button class="sub-btn" onclick="filterSub('${x}',this)">${x}</button>`});s.innerHTML=h;}applyFilter();}
         function filterSub(c,b){document.querySelectorAll('.sub-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter.category=c;applyFilter();}
-        function applyFilter(){const c=document.getElementById('listContainer');let s=currentMode==='hoclieu'?appData.files:appData.videos;let r=s.filter(i=>{let mg=currentFilter.grade==='all'||i.grade==currentFilter.grade;let mc=currentFilter.category==='all'||i.category==currentFilter.category;return mg&&mc;});if(r.length===0){c.innerHTML='<div class="col-12 text-center text-muted py-5">Chưa có nội dung.</div>';return;}let h='';r.forEach(i=>{let gn=GRADE_CONFIG.find(g=>g.id==i.grade)?.name||"Chung";if(i.type==='file'){h+=`<div class="col-md-6 col-lg-4"><div class="item-card flex-row align-items-center"><i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i><div><h6 class="fw-bold mb-1">${i.name}</h6><small class="text-muted d-block">${gn} - <span class="badge bg-secondary">${i.category}</span></small><a href="${i.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Tải về</a></div></div></div>`;}else{let vid=i.url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)?.[2]||"";let t=`https://img.youtube.com/vi/${vid}/mqdefault.jpg`;h+=`<div class="col-md-6 col-lg-4"><div class="item-card"><a href="${i.url}" target="_blank" class="position-relative"><img src="${t}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;"><div class="position-absolute top-50 start-50 translate-middle"><i class="bi bi-play-circle-fill text-danger fs-1 bg-white rounded-circle"></i></div></a><h6 class="fw-bold text-truncate mt-2">${i.name}</h6><div class="d-flex justify-content-between align-items-center"><small class="badge bg-success">${i.category}</small><small class="text-muted">${gn}</small></div></div></div>`;}});c.innerHTML=h;}
+        function applyFilter(){const c=document.getElementById('listContainer');let s=currentMode==='hoclieu'?appData.files:appData.videos;let r=s.filter(i=>{let mg=currentFilter.grade==='all'||i.grade==currentFilter.grade;let mc=currentFilter.category==='all'||i.category==currentFilter.category;return mg&&mc;});if(r.length===0){c.innerHTML='<div class="col-12 text-center text-muted py-5">Chưa có nội dung.</div>';return;}let h='';r.forEach(i=>{let gn=GRADE_CONFIG.find(g=>g.id==i.grade)?.name||"Chung";if(i.type==='file'){h+=`<div class="col-md-6 col-lg-4"><div class="item-card flex-row align-items-center"><i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i><div><h6 class="fw-bold mb-1">${i.name}</h6><small class="text-muted d-block">${gn} - <span class="badge bg-secondary">${i.category}</span></small><a href="${i.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Tải về/Xem</a></div></div></div>`;}else{let vid=i.url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)?.[2]||"";let t=`https://img.youtube.com/vi/${vid}/mqdefault.jpg`;h+=`<div class="col-md-6 col-lg-4"><div class="item-card"><a href="${i.url}" target="_blank" class="position-relative"><img src="${t}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;"><div class="position-absolute top-50 start-50 translate-middle"><i class="bi bi-play-circle-fill text-danger fs-1 bg-white rounded-circle"></i></div></a><h6 class="fw-bold text-truncate mt-2">${i.name}</h6><div class="d-flex justify-content-between align-items-center"><small class="badge bg-success">${i.category}</small><small class="text-muted">${gn}</small></div></div></div>`;}});c.innerHTML=h;}
         function onLoginSuccess(){modalLogin.hide();document.getElementById('btnAuth').style.display='none';document.getElementById('userMenu').style.display='block';document.getElementById('userDisplayName').innerText=currentUser.name;if(currentUser.role==='admin'){document.getElementById('adminArea').style.display='block';loadPendingUsers();}else{document.getElementById('adminArea').style.display='none';initFilters();}alert(`Xin chào ${currentUser.name}!`);}
         function doLogout(){currentUser=null;location.reload();}
         async function loadPendingUsers(){const res = await callAPI({action:"getPendingUsers"}); let h='';if(res.length==0)h='<tr><td colspan="4" class="text-center">Trống.</td></tr>';else{document.getElementById('badgePending').innerText=res.length;res.forEach(u=>{h+=`<tr><td>${u.grade}</td><td>${u.className}</td><td>${u.name}</td><td><button class="btn btn-sm btn-success" onclick="approveUser(${u.rowIndex})">Duyệt</button></td></tr>`});}document.getElementById('pendingTable').innerHTML=h;}
@@ -265,8 +268,6 @@
         function toggleLoader(b){document.getElementById('loader').style.display=b?'block':'none'}
         function downloadTemplate(){const c="Khối,Lớp,Họ và Tên,Mật khẩu(Tùy chọn)\n6,6A,Nguyễn Văn A,12345@\n9,9A,Trần Thị B,";const b=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),c],{type:'text/csv;charset=utf-8;'});const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download="Mau_HS.csv";l.click();}
         function textSearch(v){let k=v.toLowerCase();let s=currentMode==='hoclieu'?appData.files:appData.videos;let r=s.filter(i=>i.name.toLowerCase().includes(k));/*Simplified render*/}
-        
-        // Dropdown helpers
         function initLogDropdowns(){let gs=Object.keys(appData.users).sort((a,b)=>a-b);let h='<option value="">-- Khối --</option>';gs.forEach(g=>h+=`<option value="${g}">Khối ${g}</option>`);document.getElementById('logGrade').innerHTML=h;}
         function loadLogClasses(){let g=document.getElementById('logGrade').value;let h='<option value="">-- Lớp --</option>';if(g&&appData.users[g])Object.keys(appData.users[g]).sort().forEach(c=>h+=`<option value="${c}">${c}</option>`);document.getElementById('logClass').innerHTML=h;}
         function loadLogNames(){let g=document.getElementById('logGrade').value,c=document.getElementById('logClass').value;let h='<option value="">-- Tên --</option>';if(g&&c&&appData.users[g][c])appData.users[g][c].forEach(n=>h+=`<option value="${n}">${n}</option>`);document.getElementById('logName').innerHTML=h;}
