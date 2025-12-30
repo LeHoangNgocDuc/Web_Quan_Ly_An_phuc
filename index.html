@@ -6,50 +6,79 @@
     <title>Hệ Thống Tài Liệu An Phúc</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
     <style>
+        /* --- CẤU HÌNH GIAO DIỆN --- */
         :root { --primary: #2c3e50; --accent: #d9534f; --light-bg: #f8f9fa; }
-        body { background: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
-        .navbar-custom { background: #222; padding: 0; }
-        .navbar-custom .nav-link { color: #aaa !important; padding: 15px 20px; font-weight: 500; text-transform: uppercase; font-size: 0.9rem; cursor: pointer; }
+        body { background: var(--light-bg); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+        
+        /* Navbar */
+        .navbar-custom { background: #222; padding: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar-custom .nav-link { color: #aaa !important; padding: 15px 20px; font-weight: 500; text-transform: uppercase; font-size: 0.9rem; cursor: pointer; transition: 0.3s; }
+        .navbar-custom .nav-link:hover { color: #fff !important; background: #333; }
         .navbar-custom .nav-link.active-tab { color: #fff !important; background: var(--accent); }
-        .navbar-brand img { height: 40px; margin-right: 10px; border-radius: 5px; } 
-        .grade-btn { border: 1px solid #ddd; background: white; color: #555; border-radius: 20px; padding: 8px 20px; margin-right: 8px; font-weight: 500; white-space: nowrap; margin-bottom: 10px; }
-        .grade-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .navbar-brand img { height: 45px; margin-right: 10px; border-radius: 4px; }
+        
+        /* Bộ lọc (Tabs) */
+        .grade-btn { border: 1px solid #ddd; background: white; color: #555; border-radius: 20px; padding: 6px 18px; margin-right: 6px; font-weight: 500; white-space: nowrap; margin-bottom: 8px; transition: 0.2s; }
+        .grade-btn:hover, .grade-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .grade-btn.special-access { border-color: #ffc107; background-color: #fff3cd; color: #856404; }
-        .item-card { background: #fff; border: 1px solid #e9ecef; padding: 15px; margin-bottom: 15px; border-radius: 8px; transition: 0.2s; display: flex; flex-direction: column; }
-        .sub-btn { font-size: 0.9rem; padding: 5px 15px; border-radius: 5px; border: 1px dashed #aaa; color: #666; background: transparent; margin-right: 5px; margin-bottom: 5px; }
-        .sub-btn.active { background: var(--accent); color: white; border-style: solid; border-color: var(--accent); }
+        
+        .sub-btn { font-size: 0.85rem; padding: 4px 12px; border-radius: 4px; border: 1px dashed #aaa; color: #666; background: transparent; margin-right: 5px; margin-bottom: 5px; transition: 0.2s; }
+        .sub-btn:hover, .sub-btn.active { background: var(--accent); color: white; border-style: solid; border-color: var(--accent); }
+
+        /* Card Tài liệu */
+        .item-card { background: #fff; border: 1px solid #e9ecef; padding: 15px; margin-bottom: 15px; border-radius: 8px; transition: 0.2s; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .item-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: var(--accent); }
+        
+        /* Admin Panel */
         #adminArea { display: none; background: #fff; border: 2px dashed #333; border-radius: 10px; padding: 20px; margin-bottom: 30px; }
-        #loader { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; text-align:center; padding-top:20%; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        .nav-pills .nav-link.active { background-color: var(--accent) !important; }
+        
+        /* Loader */
+        #loader { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.85); z-index:9999; text-align:center; padding-top:20vh; backdrop-filter: blur(2px); }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div><p class="mt-2 fw-bold text-secondary">Đang kết nối...</p></div>
 
-    <nav class="navbar navbar-expand-lg navbar-custom">
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="mt-3 fw-bold text-secondary">Đang xử lý dữ liệu...</p>
+        <small class="text-muted">Vui lòng đợi trong giây lát</small>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container">
             <a class="navbar-brand text-white d-flex align-items-center" href="#">
                 <img id="appLogo" src="" alt="Logo" onerror="this.style.display='none'"> 
-                <span id="appName">AN PHÚC EDU</span>
+                <span id="appName" class="fw-bold">AN PHÚC EDU</span>
             </a>
-            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active-tab" onclick="switchMainTab('hoclieu')" id="tab-hoclieu">HỌC LIỆU</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="switchMainTab('elearning')" id="tab-elearning">ELEARNING</a></li>
+                    <li class="nav-item"><a class="nav-link active-tab" onclick="switchMainTab('hoclieu')" id="tab-hoclieu"><i class="bi bi-book"></i> HỌC LIỆU</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="switchMainTab('elearning')" id="tab-elearning"><i class="bi bi-youtube"></i> ELEARNING</a></li>
                     <li class="nav-item"><a class="nav-link" href="https://web-dung-hinh.vercel.app/" target="_blank">WEB VẼ HÌNH</a></li>
                     <li class="nav-item"><a class="nav-link" href="https://trung-tam-an-phuc.vercel.app/" target="_blank">KIỂM TRA ONLINE</a></li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-light btn-sm" onclick="modalLogin.show()" id="btnAuth">ĐĂNG NHẬP</button>
+                <div class="d-flex align-items-center mt-2 mt-lg-0">
+                    <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="modalLogin.show()" id="btnAuth">
+                        <i class="bi bi-person-circle"></i> ĐĂNG NHẬP
+                    </button>
                     <div id="userMenu" class="dropdown ms-2" style="display:none;">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="userDisplayName">User</button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#" onclick="modalChangePass.show()">🔑 Đổi mật khẩu</a></li>
+                        <button class="btn btn-light btn-sm dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown" id="userDisplayName">
+                           User
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="#" onclick="modalChangePass.show()"><i class="bi bi-key"></i> Đổi mật khẩu</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" onclick="doLogout()">Đăng xuất</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
                         </ul>
                     </div>
                 </div>
@@ -58,174 +87,656 @@
     </nav>
 
     <div class="container mt-4 mb-5">
+        
         <div id="adminArea">
-            <h5 class="text-danger fw-bold"><i class="bi bi-shield-lock-fill"></i> QUẢN TRỊ VIÊN</h5>
-            <ul class="nav nav-pills mb-3">
-                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-file">Upload Tài Liệu</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-video">Đăng Video</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-approve" onclick="loadPendingUsers()">Duyệt thành viên <span class="badge bg-danger" id="badgePending"></span></button></li>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-danger fw-bold m-0"><i class="bi bi-shield-lock-fill"></i> QUẢN TRỊ VIÊN</h5>
+                <span class="badge bg-secondary">Mode: Admin</span>
+            </div>
+            
+            <ul class="nav nav-pills mb-3 border-bottom pb-2">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-file">1. Upload Tài Liệu</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-video">2. Đăng Video</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-approve" onclick="loadPendingUsers()">3. Duyệt thành viên <span class="badge bg-danger rounded-pill" id="badgePending"></span></button></li>
             </ul>
+            
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="pills-file">
-                    <div class="card p-3 bg-light border-0">
-                        <div class="row g-2 mb-3">
-                            <div class="col-md-6"><label class="fw-bold small">1. Chọn Khối Lớp:</label><select id="upGrade" class="form-select"></select></div>
-                            <div class="col-md-6"><label class="fw-bold small">2. Chọn Học kỳ/Mục:</label><select id="upCat" class="form-select"></select></div>
+                    <div class="card p-4 bg-light border-0">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold small mb-1">Chọn Khối Lớp:</label>
+                                <select id="upGrade" class="form-select"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small mb-1">Chọn Mục:</label>
+                                <select id="upCat" class="form-select"></select>
+                            </div>
                         </div>
-                        <div class="d-flex gap-3 mb-3">
-                            <div class="form-check"><input class="form-check-input" type="radio" name="uploadMode" id="modeFile" checked onchange="toggleUploadMode()"><label class="form-check-label" for="modeFile">Upload File PDF</label></div>
-                            <div class="form-check"><input class="form-check-input" type="radio" name="uploadMode" id="modeLink" onchange="toggleUploadMode()"><label class="form-check-label" for="modeLink">Nhập Link (File nặng)</label></div>
+
+                        <div class="d-flex gap-4 mb-3 border p-2 bg-white rounded">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="uploadMode" id="modeFile" checked onchange="toggleUploadMode()">
+                                <label class="form-check-label fw-bold" for="modeFile"><i class="bi bi-upload"></i> Upload File PDF (Từ máy)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="uploadMode" id="modeLink" onchange="toggleUploadMode()">
+                                <label class="form-check-label fw-bold" for="modeLink"><i class="bi bi-link-45deg"></i> Nhập Link (File nặng)</label>
+                            </div>
                         </div>
+
                         <div id="areaFile">
-                            <input type="file" id="fileInput" class="form-control mb-2" accept=".pdf,.doc,.docx">
-                            <button class="btn btn-danger" onclick="doUploadFile()">Upload File</button>
+                            <div class="input-group">
+                                <input type="file" id="fileInput" class="form-control" accept=".pdf,.doc,.docx">
+                                <button class="btn btn-danger" onclick="doUploadFile()"><i class="bi bi-cloud-arrow-up"></i> Upload Ngay</button>
+                            </div>
+                            <div class="form-text">* Hỗ trợ file PDF, Word. Tối đa 50MB.</div>
                         </div>
+
                         <div id="areaLink" style="display:none;">
-                            <input type="text" id="linkName" class="form-control mb-2" placeholder="Tên tài liệu">
-                            <input type="text" id="linkUrl" class="form-control mb-2" placeholder="Link Drive/Web">
-                            <button class="btn btn-primary" onclick="doSaveLink()">Lưu Link</button>
+                            <input type="text" id="linkName" class="form-control mb-2" placeholder="Nhập tên tài liệu hiển thị (Ví dụ: Đề cương Toán 9 HK2 - Bản Full)">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-link"></i></span>
+                                <input type="text" id="linkUrl" class="form-control" placeholder="Dán link Google Drive hoặc Web vào đây">
+                                <button class="btn btn-primary" onclick="doSaveLink()">Lưu Link</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="tab-pane fade" id="pills-video">
                     <div class="row g-2">
                         <div class="col-md-3"><select id="vidGrade" class="form-select"></select></div>
                         <div class="col-md-3"><select id="vidCat" class="form-select"><option>Đại số</option><option>Hình học</option></select></div>
-                        <div class="col-md-6"><input type="text" id="vidTitle" class="form-control" placeholder="Tiêu đề"></div>
-                        <div class="col-md-12 mt-2"><input type="text" id="vidUrl" class="form-control" placeholder="Link Youtube"></div>
-                        <div class="col-md-12 mt-2 text-end"><button class="btn btn-danger" onclick="doSaveVideo()">Đăng Video</button></div>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="pills-approve">
-                    <div class="card p-3 mb-3 bg-light border-primary">
-                        <h6 class="text-primary fw-bold">Thêm nhanh học sinh</h6>
-                        <div class="row align-items-center g-2">
-                            <div class="col-md-6"><input type="file" id="csvFileInput" class="form-control form-control-sm" accept=".csv"></div>
-                            <div class="col-md-4"><button class="btn btn-primary btn-sm w-100" onclick="handleBulkImport()">Upload & Duyệt</button></div>
+                        <div class="col-md-6"><input type="text" id="vidTitle" class="form-control" placeholder="Tiêu đề bài giảng"></div>
+                        <div class="col-md-12 mt-2">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-youtube text-danger"></i></span>
+                                <input type="text" id="vidUrl" class="form-control" placeholder="Dán link Youtube vào đây">
+                                <button class="btn btn-danger" onclick="doSaveVideo()">Đăng Video</button>
+                            </div>
                         </div>
                     </div>
-                    <table class="table table-bordered table-hover bg-white"><tbody id="pendingTable"><tr><td class="text-center">Đang tải...</td></tr></tbody></table>
+                </div>
+
+                <div class="tab-pane fade" id="pills-approve">
+                    <div class="card p-3 mb-3 border-primary bg-light">
+                        <h6 class="text-primary fw-bold"><i class="bi bi-file-earmark-spreadsheet"></i> Thêm nhanh học sinh từ Excel</h6>
+                        <div class="row align-items-center g-2">
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-secondary btn-sm w-100" onclick="downloadTemplate()"><i class="bi bi-download"></i> Tải file mẫu CSV</button>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="file" id="csvFileInput" class="form-control form-control-sm" accept=".csv, .xlsx">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-sm w-100" onclick="handleBulkImport()"><i class="bi bi-check-circle"></i> Upload & Duyệt</button>
+                            </div>
+                        </div>
+                        <div class="form-text small text-danger">* Lưu ý: File Excel phải chọn <b>Save As -> CSV UTF-8 (Comma delimited)</b> để không lỗi phông chữ.</div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover bg-white mb-0">
+                            <thead class="table-light"><tr><th>Khối</th><th>Lớp</th><th>Họ Tên</th><th>Hành động</th></tr></thead>
+                            <tbody id="pendingTable"><tr><td colspan="4" class="text-center py-3">Đang tải dữ liệu...</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-
         <div class="mb-4">
-            <h5 class="fw-bold text-dark mb-3" id="sectionTitle"><i class="bi bi-folder2-open text-danger"></i> KHO TÀI LIỆU</h5>
-            <div class="d-flex" style="overflow-x:auto; padding-bottom:10px;" id="gradeFilters"></div>
-            <div class="d-flex flex-wrap" id="subFilters" style="display:none; gap:10px; margin-bottom:15px;"></div>
-            <input type="text" class="form-control mt-2" placeholder="🔍 Tìm kiếm..." onkeyup="textSearch(this.value)">
+            <div class="d-flex align-items-center mb-3">
+                <h4 class="fw-bold text-dark m-0 me-3" id="sectionTitle"><i class="bi bi-folder2-open text-danger"></i> KHO TÀI LIỆU</h4>
+                <div class="flex-grow-1 border-bottom"></div>
+            </div>
+            
+            <div class="d-flex flex-wrap" id="gradeFilters" style="gap:5px;"></div>
+            <div class="d-flex flex-wrap mt-2 p-2 bg-white rounded border" id="subFilters" style="display:none; gap:8px;"></div>
+            
+            <div class="mt-3 position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" class="form-control ps-5 rounded-pill" placeholder="Tìm kiếm bài học, tài liệu..." onkeyup="textSearch(this.value)">
+            </div>
         </div>
-        <div id="listContainer" class="row"><div class="text-center py-5 text-muted">Đang tải dữ liệu...</div></div>
+
+        <div id="listContainer" class="row g-3">
+            <div class="text-center py-5 text-muted">
+                <div class="spinner-border text-secondary" role="status"></div>
+                <p class="mt-2">Đang kết nối đến máy chủ...</p>
+            </div>
+        </div>
     </div>
 
-    <div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-dark text-white"><h5 class="modal-title">Đăng nhập / Đăng ký</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs mb-3"><li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-login">Đăng nhập</button></li><li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-register">Đăng ký</button></li></ul>
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Hệ thống Đăng nhập</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-tabs nav-fill mb-3">
+                        <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#tab-login">ĐĂNG NHẬP</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tab-register">ĐĂNG KÝ</button></li>
+                    </ul>
+                    
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-login">
-                            <select id="logGrade" class="form-select mb-2" onchange="loadLogClasses()"><option value="">-- Chọn Khối --</option></select>
-                            <select id="logClass" class="form-select mb-2" onchange="loadLogNames()"><option value="">-- Chọn Lớp --</option></select>
-                            <select id="logName" class="form-select mb-2"><option value="">-- Chọn Tên --</option></select>
-                            <input type="password" id="logPass" class="form-control mb-3" placeholder="Mật khẩu">
-                            <hr><div class="input-group mb-3"><span class="input-group-text">Admin</span><input type="text" id="adminUser" class="form-control" placeholder="User"><input type="password" id="adminPass" class="form-control" placeholder="Pass"></div>
-                            <button class="btn btn-success w-100" onclick="doLogin()">Đăng nhập</button>
+                            <div class="alert alert-light border small text-center mb-3">Học sinh vui lòng chọn thông tin để đăng nhập.</div>
+                            
+                            <div class="mb-3">
+                                <select id="logGrade" class="form-select mb-2 py-2" onchange="loadLogClasses()">
+                                    <option value="">-- Chọn Khối --</option>
+                                </select>
+                                <select id="logClass" class="form-select mb-2 py-2" onchange="loadLogNames()">
+                                    <option value="">-- Chọn Lớp --</option>
+                                </select>
+                                <select id="logName" class="form-select mb-2 py-2">
+                                    <option value="">-- Chọn Tên Học Sinh --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="input-group mb-4">
+                                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                <input type="password" id="logPass" class="form-control" placeholder="Mật khẩu (Mặc định: 12345@)">
+                            </div>
+                            
+                            <button class="btn btn-success w-100 fw-bold py-2 mb-3" onclick="doLogin()">ĐĂNG NHẬP HỌC SINH</button>
+                            
+                            <div class="accordion" id="accordionAdmin">
+                                <div class="accordion-item border-0">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed py-2 bg-light text-muted small" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdmin">
+                                            <i class="bi bi-person-badge-fill me-2"></i> Dành cho Giáo viên (Admin)
+                                        </button>
+                                    </h2>
+                                    <div id="collapseAdmin" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+                                        <div class="accordion-body bg-light">
+                                            <input type="text" id="adminUser" class="form-control mb-2" placeholder="Tên đăng nhập">
+                                            <input type="password" id="adminPass" class="form-control mb-2" placeholder="Mật khẩu Admin">
+                                            <button class="btn btn-dark w-100 btn-sm" onclick="doLogin()">Đăng nhập Admin</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        
                         <div class="tab-pane fade" id="tab-register">
-                             <select id="regGrade" class="form-select mb-2" onchange="loadRegClasses()"></select>
-                             <select id="regClass" class="form-select mb-2"></select>
-                             <input type="text" id="regName" class="form-control mb-2" placeholder="Họ tên đầy đủ">
-                             <input type="password" id="regPass" class="form-control mb-3" placeholder="Mật khẩu tự tạo">
-                             <button class="btn btn-primary w-100" onclick="doRegister()">Gửi đăng ký</button>
+                             <div class="mb-3">
+                                 <label class="form-label small fw-bold">Thông tin lớp học:</label>
+                                 <div class="row g-2">
+                                     <div class="col-4"><select id="regGrade" class="form-select" onchange="loadRegClasses()"></select></div>
+                                     <div class="col-8"><select id="regClass" class="form-select"></select></div>
+                                 </div>
+                             </div>
+                             <div class="mb-3">
+                                 <label class="form-label small fw-bold">Họ và tên:</label>
+                                 <input type="text" id="regName" class="form-control" placeholder="Nhập họ tên đầy đủ (Có dấu)">
+                             </div>
+                             <div class="mb-4">
+                                 <label class="form-label small fw-bold">Mật khẩu tự tạo:</label>
+                                 <input type="password" id="regPass" class="form-control" placeholder="Nhập mật khẩu">
+                             </div>
+                             <button class="btn btn-primary w-100 fw-bold py-2" onclick="doRegister()">GỬI YÊU CẦU ĐĂNG KÝ</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="changePassModal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Đổi mật khẩu</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="password" id="oldP" class="form-control mb-2" placeholder="Mật khẩu cũ"><input type="password" id="newP" class="form-control" placeholder="Mật khẩu mới"></div><div class="modal-footer"><button class="btn btn-primary w-100" onclick="doChangePass()">Lưu</button></div></div></div></div>
+
+    <div class="modal fade" id="changePassModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title fs-6">Đổi mật khẩu</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="password" id="oldP" class="form-control mb-2" placeholder="Mật khẩu cũ">
+                    <input type="password" id="newP" class="form-control" placeholder="Mật khẩu mới">
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary w-100" onclick="doChangePass()">Lưu thay đổi</button></div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ===========================================
-        // DÁN URL MỚI SAU KHI DEPLOY VÀO ĐÂY:
-        const API_URL = "https://script.google.com/macros/s/AKfycbxT6S52eLkO986FQDj9JOw6VKVvlhn826fUMHwcwreJBX0YIjyU9ZN6owLPq02cv4lhgA/exec"; 
+        // =========================================================================
+        // 1. CẤU HÌNH HỆ THỐNG
+        // =========================================================================
+        
+        // DÁN LINK WEB APP CỦA THẦY VÀO ĐÂY (Link có đuôi /exec):
+        const API_URL = "https://script.google.com/macros/s/AKfycbzZN010AXmAthc-KX527ycL5AQZnDcWSBPIFUO8jzoZzz-Ygc0Ps5KTwSKdTybiR_JBpA/exec"; 
+        
+        // Link Logo (Thay link ảnh của thầy vào đây)
         const LOGO_URL = "https://raw.githubusercontent.com/lehoangngocduc/Hoc-Toan-An-Phuc/main/logo.png"; 
-        // ===========================================
+        
+        // =========================================================================
 
         const GRADE_CONFIG = [{id:"6",name:"Lớp 6"},{id:"7",name:"Lớp 7"},{id:"8",name:"Lớp 8"},{id:"9",name:"Lớp 9"},{id:"ts10",name:"TS10"},{id:"10",name:"Lớp 10"},{id:"11",name:"Lớp 11"},{id:"12",name:"Lớp 12"},{id:"thptqg",name:"THPTQG"}];
         const SUB_CATS = { hoclieu:{default:["HKI","HKII","Lý thuyết"],special:["Chuyên đề"]}, elearning:{default:["Đại số","Hình học"],special:["Đại số","Hình học"]} };
-        let appData = {files:[],videos:[],classes:{},users:{}}, currentMode = 'hoclieu', currentFilter = {grade:'all',category:'all'}, currentUser = null;
-        const modalLogin = new bootstrap.Modal(document.getElementById('loginModal')), modalChangePass = new bootstrap.Modal(document.getElementById('changePassModal'));
+        
+        let appData = {files:[],videos:[],classes:{},users:{}};
+        let currentMode = 'hoclieu'; 
+        let currentFilter = {grade:'all',category:'all'}; 
+        let currentUser = null;
 
-        window.onload = function(){ 
-            if(LOGO_URL) { document.getElementById('appLogo').src = LOGO_URL; document.getElementById('appLogo').style.display='block'; }
-            if(!API_URL.includes("script.google.com")){ alert("Cảnh báo: Chưa cập nhật Link API!"); return; }
-            initFilters(); fetchData(); 
+        const modalLogin = new bootstrap.Modal(document.getElementById('loginModal'));
+        const modalChangePass = new bootstrap.Modal(document.getElementById('changePassModal'));
+
+        // KHI TRANG TẢI XONG
+        window.onload = function() {
+            if(LOGO_URL && LOGO_URL.startsWith("http")) { 
+                document.getElementById('appLogo').src = LOGO_URL; 
+                document.getElementById('appLogo').style.display = 'block';
+            }
+            if(!API_URL.includes("script.google.com")){ 
+                alert("CẢNH BÁO: Thầy chưa dán Link API vào dòng 252!"); 
+                return; 
+            }
+            initFilters(); 
+            fetchData(); 
         };
 
+        // --- HÀM GỌI API (QUAN TRỌNG: TEXT/PLAIN ĐỂ TRÁNH CORS) ---
         async function callAPI(payload) {
             try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    // Trick: Dùng text/plain để trình duyệt không gửi Preflight request (OPTIONS)
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
                 return await res.json();
-            } catch (error) { console.error("API Error:", error); return { status: "error", message: "Lỗi kết nối Server! Vui lòng thử lại." }; }
+            } catch (error) {
+                console.error("API Error:", error);
+                return { status: "error", message: "Không thể kết nối Server! Vui lòng thử lại sau." };
+            }
         }
         
         async function fetchData() {
             try {
                 const res = await fetch(API_URL);
                 const data = await res.json();
-                if(data.error) { alert("Lỗi Server: " + data.error); return; }
+                
+                if(data.error) { 
+                    alert("Lỗi Server Backend: " + data.error); 
+                    return; 
+                }
+                
                 appData = data;
-                applyFilter(); initLogDropdowns(); initRegDropdowns(); initAdminDropdowns();
+                applyFilter(); 
+                initLogDropdowns(); 
+                initRegDropdowns(); 
+                initAdminDropdowns();
             } catch (e) { console.error(e); }
         }
 
-        // --- IMPORT CSV FIX ENCODING ---
+        // --- LOGIC GIAO DIỆN (UI) ---
+        function switchMainTab(mode) {
+            currentMode = mode;
+            currentFilter = {grade:'all',category:'all'};
+            // Đổi active tab
+            document.querySelectorAll('.navbar-custom .nav-link').forEach(l => l.classList.remove('active-tab'));
+            document.getElementById('tab-' + mode).classList.add('active-tab');
+            // Đổi tiêu đề
+            document.getElementById('sectionTitle').innerHTML = mode === 'hoclieu' 
+                ? '<i class="bi bi-folder2-open text-danger"></i> KHO TÀI LIỆU' 
+                : '<i class="bi bi-youtube text-danger"></i> KHO VIDEO ELEARNING';
+            
+            initFilters();
+            applyFilter();
+        }
+
+        function initFilters() {
+            const container = document.getElementById('gradeFilters');
+            let html = `<button class="grade-btn active" onclick="filterGrade('all',this)">Tất cả</button>`;
+            
+            GRADE_CONFIG.forEach(g => {
+                let extraClass = "";
+                // Highlight lớp của học sinh nếu đã đăng nhập
+                if(currentUser) {
+                    if(currentUser.grade == "9" && g.id == "ts10") extraClass = "special-access";
+                    if(currentUser.grade == "12" && g.id == "thptqg") extraClass = "special-access";
+                    if(currentUser.grade == g.id) extraClass = "active"; // Auto active lớp HS
+                }
+                html += `<button class="grade-btn ${extraClass}" onclick="filterGrade('${g.id}',this)">${g.name}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterGrade(gradeId, btnElement) {
+            document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            
+            currentFilter.grade = gradeId;
+            currentFilter.category = 'all';
+
+            // Render Sub-filters
+            const subContainer = document.getElementById('subFilters');
+            if(gradeId === 'all') {
+                subContainer.style.display = 'none';
+            } else {
+                subContainer.style.display = 'flex';
+                let cats = (gradeId === 'ts10' || gradeId === 'thptqg') 
+                           ? SUB_CATS[currentMode].special 
+                           : SUB_CATS[currentMode].default;
+                
+                let html = `<button class="sub-btn active" onclick="filterSub('all',this)">Tất cả</button>`;
+                cats.forEach(c => {
+                    html += `<button class="sub-btn" onclick="filterSub('${c}',this)">${c}</button>`;
+                });
+                subContainer.innerHTML = html;
+            }
+            applyFilter();
+        }
+
+        function filterSub(cat, btn) {
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter.category = cat;
+            applyFilter();
+        }
+
+        function applyFilter() {
+            const container = document.getElementById('listContainer');
+            let source = currentMode === 'hoclieu' ? appData.files : appData.videos;
+            
+            let result = source.filter(item => {
+                let matchGrade = currentFilter.grade === 'all' || item.grade == currentFilter.grade;
+                let matchCat = currentFilter.category === 'all' || item.category == currentFilter.category;
+                return matchGrade && matchCat;
+            });
+
+            if(result.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-inbox fs-1"></i><p>Chưa có nội dung ở mục này.</p></div>';
+                return;
+            }
+
+            let html = '';
+            result.forEach(item => {
+                let gradeName = GRADE_CONFIG.find(g => g.id == item.grade)?.name || "Chung";
+                
+                if(item.type === 'file') {
+                    // FILE CARD
+                    let icon = 'bi-file-earmark-pdf-fill';
+                    let btnText = (item.source === 'link') ? '🔗 Mở Link' : '⬇ Tải về';
+                    let badgeColor = (item.source === 'link') ? 'bg-info' : 'bg-secondary';
+                    
+                    html += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="item-card flex-row align-items-center h-100">
+                            <i class="bi ${icon} text-danger fs-1 me-3 ps-2"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1 text-truncate-2" title="${item.name}">${item.name}</h6>
+                                <div class="small text-muted mb-2">
+                                    <span class="badge ${badgeColor}">${item.category}</span> ${gradeName}
+                                </div>
+                                <a href="${item.url}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">${btnText}</a>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    // VIDEO CARD
+                    let vidId = item.url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)?.[2] || "";
+                    let thumb = `https://img.youtube.com/vi/${vidId}/mqdefault.jpg`;
+                    
+                    html += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="item-card p-0">
+                            <a href="${item.url}" target="_blank" class="position-relative">
+                                <img src="${thumb}" style="width:100%; height:180px; object-fit:cover;">
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <i class="bi bi-play-circle-fill text-danger fs-1 bg-white rounded-circle"></i>
+                                </div>
+                            </a>
+                            <div class="p-3">
+                                <h6 class="fw-bold text-truncate mb-1">${item.name}</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success">${item.category}</span>
+                                    <small class="text-muted">${gradeName}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        // --- UPLOAD & IMPORT HANDLERS ---
+        function toggleUploadMode() {
+            let isFile = document.getElementById('modeFile').checked;
+            document.getElementById('areaFile').style.display = isFile ? 'block' : 'none';
+            document.getElementById('areaLink').style.display = isFile ? 'none' : 'block';
+        }
+
+        // Upload File PDF
+        function doUploadFile() {
+            let f = document.getElementById('fileInput').files[0];
+            if(!f) return alert("Chưa chọn file!");
+            if(f.size > 50 * 1024 * 1024) return alert("File > 50MB. Vui lòng dùng chế độ 'Nhập Link'!");
+
+            toggleLoader(true);
+            let r = new FileReader();
+            r.readAsDataURL(f);
+            r.onload = async function() {
+                const res = await callAPI({
+                    action: "upload", 
+                    fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1],
+                    grade: document.getElementById('upGrade').value, 
+                    category: document.getElementById('upCat').value
+                });
+                toggleLoader(false);
+                if(res.status === "success") { alert("Upload thành công!"); fetchData(); } 
+                else alert("Lỗi: " + res.message);
+            };
+        }
+
+        // Upload Link
+        async function doSaveLink() {
+            let n = document.getElementById('linkName').value;
+            let u = document.getElementById('linkUrl').value;
+            if(!n || !u) return alert("Vui lòng nhập tên tài liệu và link!");
+            
+            toggleLoader(true);
+            const res = await callAPI({
+                action: "saveFileLink", fileName: n, url: u,
+                grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value
+            });
+            toggleLoader(false);
+            if(res.status === "success") { 
+                alert("Lưu Link thành công!"); 
+                document.getElementById('linkName').value=''; 
+                document.getElementById('linkUrl').value='';
+                fetchData(); 
+            } else alert("Lỗi: " + res.message);
+        }
+
+        // Import CSV (Fix lỗi font)
         function handleBulkImport() {
             const f = document.getElementById('csvFileInput').files[0];
             if(!f) return alert("Chưa chọn file CSV!");
             
-            // THỬ ĐỌC VỚI MÃ TIẾNG VIỆT/WINDOWS
             let r = new FileReader();
             r.onload = async function(e) {
                 toggleLoader(true);
                 const res = await callAPI({ action: "importUsersBulk", csvContent: e.target.result });
                 toggleLoader(false);
-                if(res.status === "success") { alert("Đã thêm " + res.count + " HS!"); fetchData(); } else alert("Lỗi: " + res.message);
+                if(res.status === "success") { 
+                    alert("Đã thêm thành công " + res.count + " học sinh!"); 
+                    document.getElementById('csvFileInput').value = '';
+                    fetchData(); 
+                } else alert("Lỗi: " + res.message);
             };
-            // Quan trọng: Đọc dưới dạng utf-8 để tương thích
-            r.readAsText(f, "UTF-8"); 
+            // Đọc file với encoding UTF-8 để không lỗi tiếng Việt
+            r.readAsText(f, "UTF-8");
         }
 
-        // CÁC HÀM LOGIC CÒN LẠI (GIỮ NGUYÊN)
-        function initLogDropdowns(){if(!appData.users)return;let gs=Object.keys(appData.users).sort((a,b)=>a-b);let h='<option value="">-- Chọn Khối --</option>';gs.forEach(g=>h+=`<option value="${g}">Khối ${g}</option>`);document.getElementById('logGrade').innerHTML=h;}
-        function loadLogClasses(){let g=document.getElementById('logGrade').value;let h='<option value="">-- Chọn Lớp --</option>';if(g&&appData.users[g])Object.keys(appData.users[g]).sort().forEach(c=>h+=`<option value="${c}">${c}</option>`);document.getElementById('logClass').innerHTML=h;document.getElementById('logName').innerHTML='<option value="">-- Chọn Tên --</option>';}
-        function loadLogNames(){let g=document.getElementById('logGrade').value,c=document.getElementById('logClass').value;let h='<option value="">-- Chọn Tên --</option>';if(g&&c&&appData.users[g][c])appData.users[g][c].forEach(n=>h+=`<option value="${n}">${n}</option>`);document.getElementById('logName').innerHTML=h;}
-        function toggleUploadMode() { let isFile = document.getElementById('modeFile').checked; document.getElementById('areaFile').style.display = isFile ? 'block' : 'none'; document.getElementById('areaLink').style.display = isFile ? 'none' : 'block'; }
-        function doUploadFile() { let f = document.getElementById('fileInput').files[0]; if(!f) return alert("Chưa chọn file"); toggleLoader(true); let r = new FileReader(); r.readAsDataURL(f); r.onload = async function() { const res = await callAPI({ action: "upload", fileName: f.name, mimeType: f.type, fileData: r.result.split(',')[1], grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value }); toggleLoader(false); if(res.status === "success") { alert("Upload thành công!"); fetchData(); } else alert("Lỗi: " + res.message); }; }
-        async function doSaveLink() { let n = document.getElementById('linkName').value, u = document.getElementById('linkUrl').value; if(!n || !u) return alert("Nhập đủ thông tin!"); toggleLoader(true); const res = await callAPI({ action: "saveFileLink", fileName: n, url: u, grade: document.getElementById('upGrade').value, category: document.getElementById('upCat').value }); toggleLoader(false); if(res.status === "success") { alert("Lưu link thành công!"); fetchData(); } else alert("Lỗi: " + res.message); }
-        async function doLogin(){let u=document.getElementById('adminUser').value,p=document.getElementById('adminPass').value;if(u||p){toggleLoader(true);const r=await callAPI({action:"login",username:u,pass:p});toggleLoader(false);if(r.status=="success"&&r.role=="admin"){currentUser=r;onLoginSuccess();}else alert("Sai Admin!");}else{let n=document.getElementById('logName').value,lp=document.getElementById('logPass').value;if(!n||!lp)return alert("Thiếu thông tin");toggleLoader(true);const r=await callAPI({action:"login",username:n,pass:lp});toggleLoader(false);if(r.status=="success"){currentUser=r;onLoginSuccess();}else alert(r.message);}}
-        function switchMainTab(m){currentMode=m;currentFilter={grade:'all',category:'all'};document.querySelectorAll('.navbar-custom .nav-link').forEach(l=>l.classList.remove('active-tab'));document.getElementById('tab-'+m).classList.add('active-tab');initFilters();applyFilter();}
-        function initFilters(){const c=document.getElementById('gradeFilters');let h=`<button class="grade-btn active" onclick="filterGrade('all',this)">Tất cả</button>`;GRADE_CONFIG.forEach(g=>{let e="";if(currentUser&&currentUser.grade=="9"&&g.id=="ts10")e="special-access";if(currentUser&&currentUser.grade=="12"&&g.id=="thptqg")e="special-access";h+=`<button class="grade-btn ${e}" onclick="filterGrade('${g.id}',this)">${g.name}</button>`});c.innerHTML=h;}
-        function filterGrade(g,b){document.querySelectorAll('.grade-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter.grade=g;currentFilter.category='all';const s=document.getElementById('subFilters');if(g==='all')s.style.display='none';else{s.style.display='flex';let k=(g=='ts10'||g=='thptqg')?SUB_CATS[currentMode].special:SUB_CATS[currentMode].default;let h=`<button class="sub-btn active" onclick="filterSub('all',this)">Tất cả</button>`;k.forEach(x=>{h+=`<button class="sub-btn" onclick="filterSub('${x}',this)">${x}</button>`});s.innerHTML=h;}applyFilter();}
-        function filterSub(c,b){document.querySelectorAll('.sub-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter.category=c;applyFilter();}
-        function applyFilter(){const c=document.getElementById('listContainer');let s=currentMode==='hoclieu'?appData.files:appData.videos;let r=s.filter(i=>{let mg=currentFilter.grade==='all'||i.grade==currentFilter.grade;let mc=currentFilter.category==='all'||i.category==currentFilter.category;return mg&&mc;});if(r.length===0){c.innerHTML='<div class="col-12 text-center text-muted py-5">Chưa có nội dung.</div>';return;}let h='';r.forEach(i=>{let gn=GRADE_CONFIG.find(g=>g.id==i.grade)?.name||"Chung";if(i.type==='file'){let linkMode = i.source==='link' ? '🔗 Link' : '⬇ Tải về'; h+=`<div class="col-md-6 col-lg-4"><div class="item-card flex-row align-items-center"><i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i><div><h6 class="fw-bold mb-1">${i.name}</h6><small class="text-muted d-block">${gn} - <span class="badge bg-secondary">${i.category}</span></small><a href="${i.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">${linkMode}</a></div></div></div>`;}else{let vid=i.url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)?.[2]||"";let t=`https://img.youtube.com/vi/${vid}/mqdefault.jpg`;h+=`<div class="col-md-6 col-lg-4"><div class="item-card"><a href="${i.url}" target="_blank" class="position-relative"><img src="${t}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;"><div class="position-absolute top-50 start-50 translate-middle"><i class="bi bi-play-circle-fill text-danger fs-1 bg-white rounded-circle"></i></div></a><h6 class="fw-bold text-truncate mt-2">${i.name}</h6><div class="d-flex justify-content-between align-items-center"><small class="badge bg-success">${i.category}</small><small class="text-muted">${gn}</small></div></div></div>`;}});c.innerHTML=h;}
-        function onLoginSuccess(){modalLogin.hide();document.getElementById('btnAuth').style.display='none';document.getElementById('userMenu').style.display='block';document.getElementById('userDisplayName').innerText=currentUser.name;if(currentUser.role==='admin'){document.getElementById('adminArea').style.display='block';loadPendingUsers();}else{document.getElementById('adminArea').style.display='none';initFilters();}alert(`Xin chào ${currentUser.name}!`);}
-        function doLogout(){currentUser=null;location.reload();}
-        async function loadPendingUsers(){const res = await callAPI({action:"getPendingUsers"}); let h='';if(res.length==0)h='<tr><td colspan="4" class="text-center">Trống.</td></tr>';else{document.getElementById('badgePending').innerText=res.length;res.forEach(u=>{h+=`<tr><td>${u.grade}</td><td>${u.className}</td><td>${u.name}</td><td><button class="btn btn-sm btn-success" onclick="approveUser(${u.rowIndex})">Duyệt</button></td></tr>`});}document.getElementById('pendingTable').innerHTML=h;}
-        async function approveUser(i){if(!confirm("Duyệt?"))return;toggleLoader(true);await callAPI({action:"approveUser",rowIndex:i});toggleLoader(false);loadPendingUsers();fetchData();}
-        function doSaveVideo(){let t=document.getElementById('vidTitle').value,u=document.getElementById('vidUrl').value;if(!t||!u)return alert("Thiếu thông tin");toggleLoader(true);callAPI({action:"saveVideo",title:t,url:u,grade:document.getElementById('vidGrade').value,category:document.getElementById('vidCat').value}).then(()=>{alert("Xong!");toggleLoader(false);fetchData();})}
-        async function doChangePass(){let o=document.getElementById('oldP').value,n=document.getElementById('newP').value;if(!currentUser||!o||!n)return;toggleLoader(true);const r=await callAPI({action:"changePass",grade:currentUser.grade,className:currentUser.className,name:currentUser.name,oldPass:o,newPass:n});toggleLoader(false);alert(r.status=="success"?"Đổi pass thành công":r.message);}
-        function toggleLoader(b){document.getElementById('loader').style.display=b?'block':'none'}
-        function textSearch(v){let k=v.toLowerCase();let s=currentMode==='hoclieu'?appData.files:appData.videos;let r=s.filter(i=>i.name.toLowerCase().includes(k));/*Simplified render*/}
-        function initRegDropdowns(){let gs=Object.keys(appData.classes).sort((a,b)=>a-b);let h='<option value="">-- Chọn Khối --</option>';gs.forEach(g=>h+=`<option value="${g}">Khối ${g}</option>`);document.getElementById('regGrade').innerHTML=h;}
-        function loadRegClasses(){let g=document.getElementById('regGrade').value,h='';if(g&&appData.classes[g])appData.classes[g].forEach(c=>h+=`<option value="${c}">${c}</option>`);document.getElementById('regClass').innerHTML=h;}
-        async function doRegister(){let g=document.getElementById('regGrade').value,c=document.getElementById('regClass').value,n=document.getElementById('regName').value,p=document.getElementById('regPass').value;if(!g||!c||!n||!p)return alert("Thiếu thông tin");toggleLoader(true);const r=await callAPI({action:"register",grade:g,className:c,name:n,pass:p});toggleLoader(false);if(r.status=="success"){alert("Đăng ký thành công! Chờ duyệt.");modalLogin.hide();}else alert(r.message);}
-        function initAdminDropdowns(){let h='';GRADE_CONFIG.forEach(g=>h+=`<option value="${g.id}">${g.name}</option>`);document.getElementById('upGrade').innerHTML=h;document.getElementById('vidGrade').innerHTML=h;document.getElementById('upGrade').dispatchEvent(new Event('change'));}
-        document.getElementById('upGrade').addEventListener('change',function(){let g=this.value,c=(g=='ts10'||g=='thptqg')?SUB_CATS.hoclieu.special:SUB_CATS.hoclieu.default;document.getElementById('upCat').innerHTML=c.map(x=>`<option value="${x}">${x}</option>`).join('');});
+        // --- AUTH DROPDOWNS ---
+        function initLogDropdowns(){
+            if(!appData.users) return;
+            // Chỉ lấy những khối có User Active
+            let gs = Object.keys(appData.users).sort((a,b)=>a-b);
+            let h = '<option value="">-- Chọn Khối --</option>';
+            gs.forEach(g => h += `<option value="${g}">Khối ${g}</option>`);
+            document.getElementById('logGrade').innerHTML = h;
+        }
+        function loadLogClasses(){
+            let g = document.getElementById('logGrade').value;
+            let h = '<option value="">-- Chọn Lớp --</option>';
+            if(g && appData.users[g]) Object.keys(appData.users[g]).sort().forEach(c => h += `<option value="${c}">${c}</option>`);
+            document.getElementById('logClass').innerHTML = h;
+            document.getElementById('logName').innerHTML = '<option value="">-- Chọn Tên Học Sinh --</option>';
+        }
+        function loadLogNames(){
+            let g = document.getElementById('logGrade').value, c = document.getElementById('logClass').value;
+            let h = '<option value="">-- Chọn Tên Học Sinh --</option>';
+            if(g && c && appData.users[g][c]) appData.users[g][c].forEach(n => h += `<option value="${n}">${n}</option>`);
+            document.getElementById('logName').innerHTML = h;
+        }
+
+        // --- AUTH ACTIONS ---
+        async function doLogin() {
+            let u = document.getElementById('adminUser').value;
+            let p = document.getElementById('adminPass').value;
+            
+            // 1. Check Admin Login
+            if(u || p) {
+                toggleLoader(true);
+                const res = await callAPI({action:"login", username:u, pass:p});
+                toggleLoader(false);
+                if(res.status=="success" && res.role=="admin") {
+                    currentUser = res; 
+                    onLoginSuccess();
+                } else alert("Sai tài khoản hoặc mật khẩu Admin!");
+            } else {
+                // 2. Check Student Login
+                let n = document.getElementById('logName').value;
+                let lp = document.getElementById('logPass').value;
+                if(!n) return alert("Vui lòng chọn tên học sinh!");
+                if(!lp) lp = "12345@"; // Auto fill nếu để trống (tùy chọn)
+
+                toggleLoader(true);
+                const res = await callAPI({action:"login", username:n, pass:lp});
+                toggleLoader(false);
+                if(res.status=="success") {
+                    currentUser = res;
+                    onLoginSuccess();
+                } else alert(res.message);
+            }
+        }
+
+        function onLoginSuccess() {
+            modalLogin.hide();
+            document.getElementById('btnAuth').parentElement.style.display = 'none'; // Hide login btn
+            document.getElementById('userMenu').style.display = 'block';
+            document.getElementById('userDisplayName').innerHTML = `<i class="bi bi-person-circle"></i> ${currentUser.name}`;
+            
+            if(currentUser.role === 'admin') {
+                document.getElementById('adminArea').style.display = 'block';
+                loadPendingUsers();
+            } else {
+                document.getElementById('adminArea').style.display = 'none';
+                initFilters(); // Re-init filters to highlight student's grade
+            }
+            alert(`Xin chào ${currentUser.name}!`);
+        }
+
+        function doLogout() {
+            currentUser = null;
+            location.reload();
+        }
+
+        // --- OTHER UTILS ---
+        function initRegDropdowns(){
+            if(!appData.classes) return;
+            let gs = Object.keys(appData.classes).sort((a,b)=>a-b);
+            let h = '<option value="">-- Chọn Khối --</option>';
+            gs.forEach(g => h += `<option value="${g}">Khối ${g}</option>`);
+            document.getElementById('regGrade').innerHTML = h;
+        }
+        function loadRegClasses(){
+            let g = document.getElementById('regGrade').value, h = '';
+            if(g && appData.classes[g]) appData.classes[g].forEach(c => h += `<option value="${c}">${c}</option>`);
+            document.getElementById('regClass').innerHTML = h;
+        }
+        async function doRegister(){
+            let g = document.getElementById('regGrade').value, c = document.getElementById('regClass').value, n = document.getElementById('regName').value, p = document.getElementById('regPass').value;
+            if(!g || !c || !n || !p) return alert("Vui lòng nhập đủ thông tin!");
+            toggleLoader(true);
+            const res = await callAPI({action:"register", grade:g, className:c, name:n, pass:p});
+            toggleLoader(false);
+            if(res.status=="success"){ alert("Đăng ký thành công! Vui lòng chờ thầy duyệt."); modalLogin.hide(); } else alert(res.message);
+        }
+        async function loadPendingUsers(){
+            const res = await callAPI({action:"getPendingUsers"}); 
+            let h = '';
+            if(!res || res.length==0) h='<tr><td colspan="4" class="text-center py-3 text-muted">Không có yêu cầu nào cần duyệt.</td></tr>';
+            else {
+                document.getElementById('badgePending').innerText = res.length;
+                res.forEach(u => {
+                    h += `<tr><td>${u.grade}</td><td>${u.className}</td><td>${u.name}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="approveUser(${u.rowIndex})">Duyệt</button></td></tr>`;
+                });
+            }
+            document.getElementById('pendingTable').innerHTML = h;
+        }
+        async function approveUser(i){
+            if(!confirm("Xác nhận duyệt học sinh này?")) return;
+            toggleLoader(true); await callAPI({action:"approveUser", rowIndex:i}); toggleLoader(false);
+            loadPendingUsers(); fetchData();
+        }
+        function doSaveVideo(){
+            let t=document.getElementById('vidTitle').value, u=document.getElementById('vidUrl').value;
+            if(!t || !u) return alert("Thiếu thông tin");
+            toggleLoader(true);
+            callAPI({
+                action:"saveVideo", title:t, url:u, 
+                grade:document.getElementById('vidGrade').value, category:document.getElementById('vidCat').value
+            }).then(() => { alert("Đăng video thành công!"); toggleLoader(false); fetchData(); });
+        }
+        async function doChangePass(){
+            let o=document.getElementById('oldP').value, n=document.getElementById('newP').value;
+            if(!currentUser || !o || !n) return;
+            toggleLoader(true);
+            const r = await callAPI({action:"changePass", grade:currentUser.grade, className:currentUser.className, name:currentUser.name, oldPass:o, newPass:n});
+            toggleLoader(false);
+            alert(r.status=="success" ? "Đổi mật khẩu thành công!" : r.message);
+        }
+        function toggleLoader(b){ document.getElementById('loader').style.display = b ? 'block' : 'none'; }
+        function downloadTemplate(){
+            const c = "\ufeffKhối,Lớp,Họ và Tên,Mật khẩu(Tùy chọn)\n6,6A,Nguyễn Văn A,12345@\n9,9A,Trần Thị B,";
+            const b = new Blob([c], {type: 'text/csv;charset=utf-8;'});
+            const l = document.createElement("a"); l.href = URL.createObjectURL(b); l.download = "Mau_Danh_Sach_HS.csv"; l.click();
+        }
+        function textSearch(v){
+            let k = v.toLowerCase();
+            let source = currentMode === 'hoclieu' ? appData.files : appData.videos;
+            let result = source.filter(i => i.name.toLowerCase().includes(k));
+            // Simple re-render logic just for search results
+            // (Note: This is a simplified search rendering)
+            const container = document.getElementById('listContainer');
+            if(result.length===0){ container.innerHTML='<div class="col-12 text-center text-muted">Không tìm thấy kết quả.</div>'; return; }
+            let h=''; 
+            result.forEach(i => { /* Reuse logic from applyFilter */ 
+                 let gn=GRADE_CONFIG.find(g=>g.id==i.grade)?.name||"Chung";
+                 if(i.type==='file'){
+                     let linkMode = i.source==='link' ? '🔗 Link' : '⬇ Tải về';
+                     h+=`<div class="col-md-6 col-lg-4"><div class="item-card flex-row align-items-center"><i class="bi bi-file-earmark-pdf-fill text-danger fs-1 me-3"></i><div><h6 class="fw-bold mb-1">${i.name}</h6><small class="text-muted">${gn}</small><br><a href="${i.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">${linkMode}</a></div></div></div>`;
+                 } else { h+=`<div class="col-md-6 col-lg-4"><div class="item-card p-3"><h6>${i.name}</h6><a href="${i.url}" target="_blank">Xem Video</a></div></div>`; }
+            });
+            container.innerHTML=h;
+        }
+        function initAdminDropdowns(){
+            let h=''; GRADE_CONFIG.forEach(g => h+=`<option value="${g.id}">${g.name}</option>`);
+            document.getElementById('upGrade').innerHTML=h;
+            document.getElementById('vidGrade').innerHTML=h;
+            document.getElementById('upGrade').dispatchEvent(new Event('change'));
+        }
+        document.getElementById('upGrade').addEventListener('change',function(){
+            let g=this.value, c=(g=='ts10'||g=='thptqg') ? SUB_CATS.hoclieu.special : SUB_CATS.hoclieu.default;
+            document.getElementById('upCat').innerHTML = c.map(x => `<option value="${x}">${x}</option>`).join('');
+        });
     </script>
 </body>
 </html>
